@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WardrobeAI — Your Personal Style Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
+<style>
+/* ── RESET & ROOT ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --cream: #FAF7F2;
+  --cream2: #F3EFE7;
+  --cream3: #EDE7DB;
+  --charcoal: #1C1C1C;
+  --charcoal2: #2E2D2A;
+  --gold: #B8924A;
+  --gold2: #D4AA6A;
+  --muted: #8A8070;
+  --border: #E2DACE;
+  --white: #FFFFFF;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Jost', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--charcoal);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--font-body); cursor: pointer; border: none; background: none; }
+img { display: block; max-width: 100%; }
+
+/* ── TRANSITIONS ── */
+.page { display: none; opacity: 0; transform: translateY(16px); transition: opacity .4s ease, transform .4s ease; }
+.page.active { display: block; opacity: 1; transform: translateY(0); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5%; height: 72px;
+  background: rgba(250,247,242,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow .3s;
+}
+nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.06); }
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  color: var(--charcoal);
+}
+.nav-logo span { color: var(--gold); }
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-link {
+  font-size: 13px; font-weight: 500; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted);
+  padding: 4px 0;
+  border-bottom: 1.5px solid transparent;
+  transition: color .2s, border-color .2s;
+  cursor: pointer;
+}
+.nav-link:hover, .nav-link.active { color: var(--charcoal); border-color: var(--gold); }
+.nav-cta {
+  background: var(--charcoal); color: var(--cream);
+  font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;
+  padding: 10px 22px; border-radius: 2px;
+  transition: background .2s, transform .2s;
+}
+.nav-cta:hover { background: var(--gold); transform: translateY(-1px); }
+.nav-hamburger { display: none; font-size: 1.4rem; color: var(--charcoal); cursor: pointer; }
+.mobile-menu {
+  display: none; position: fixed; inset: 72px 0 0 0; background: var(--cream);
+  z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 2rem;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu .nav-link { font-size: 1.1rem; letter-spacing: 2px; }
+
+@media(max-width:768px){
+  .nav-links { display: none; }
+  .nav-hamburger { display: block; }
+}
+
+/* ── CONTENT WRAPPER ── */
+.content { padding-top: 72px; }
+
+/* ════════════════════════════
+   PAGE: HOME
+════════════════════════════ */
+.hero {
+  min-height: calc(100vh - 72px);
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 5%;
+  gap: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; right: -10%; top: -10%; width: 60%; height: 120%;
+  background: var(--cream2);
+  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+  z-index: 0;
+}
+.hero-text { position: relative; z-index: 1; }
+.hero-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before { content: ''; width: 30px; height: 1px; background: var(--gold); }
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--charcoal);
+  margin-bottom: 1.5rem;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-subtitle {
+  font-size: 1rem; font-weight: 300; line-height: 1.8;
+  color: var(--muted); max-width: 420px; margin-bottom: 2.5rem;
+}
+.hero-actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--charcoal); color: var(--cream);
+  padding: 14px 32px; border-radius: 2px;
+  font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  transition: background .2s, transform .2s;
+  cursor: pointer; border: none; font-family: var(--font-body);
+}
+.btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
+.btn-ghost {
+  color: var(--charcoal); font-size: 13px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+  transition: color .2s; cursor: pointer; border: none; background: none;
+  font-family: var(--font-body);
+}
+.btn-ghost:hover { color: var(--gold); }
+.hero-stats {
+  display: flex; gap: 3rem; margin-top: 3rem; padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.stat-num {
+  font-family: var(--font-display); font-size: 2.2rem; font-weight: 300; color: var(--charcoal);
+}
+.stat-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.hero-visual { position: relative; z-index: 1; }
+.hero-card-stack { position: relative; height: 500px; }
+.hero-card {
+  position: absolute;
+  background: var(--white);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.08);
+}
+.hero-card.main-card {
+  width: 280px; height: 380px;
+  top: 40px; left: 50%;
+  transform: translateX(-50%);
+  animation: float 6s ease-in-out infinite;
+}
+.hero-card.side-card-1 {
+  width: 200px; height: 260px;
+  top: 0; left: 0;
+  transform: rotate(-4deg);
+  animation: float 7s ease-in-out infinite .5s;
+}
+.hero-card.side-card-2 {
+  width: 180px; height: 230px;
+  bottom: 20px; right: 0;
+  transform: rotate(3deg);
+  animation: float 8s ease-in-out infinite 1s;
+}
+@keyframes float { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-12px)} }
+@keyframes floatL { 0%,100%{transform:rotate(-4deg) translateY(0)} 50%{transform:rotate(-4deg) translateY(-8px)} }
+@keyframes floatR { 0%,100%{transform:rotate(3deg) translateY(0)} 50%{transform:rotate(3deg) translateY(-10px)} }
+.hero-card.side-card-1 { animation: floatL 7s ease-in-out infinite .5s; }
+.hero-card.side-card-2 { animation: floatR 8s ease-in-out infinite 1s; }
+.card-header { padding: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.card-dot { width: 8px; height: 8px; border-radius: 50%; }
+.card-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card-piece { display: flex; align-items: center; gap: 10px; }
+.card-swatch { width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0; }
+.card-text-block { flex: 1; }
+.card-label { width: 60%; height: 8px; border-radius: 4px; background: var(--cream2); margin-bottom: 5px; }
+.card-sub { width: 80%; height: 6px; border-radius: 4px; background: var(--cream3); }
+.card-tag { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 500; letter-spacing: .5px; }
+
+/* ── MARQUEE ── */
+.marquee-section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  overflow: hidden;
+  background: var(--charcoal);
+}
+.marquee-track { display: flex; gap: 4rem; animation: marquee 20s linear infinite; white-space: nowrap; }
+.marquee-item { font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--cream2); display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+.marquee-item i { color: var(--gold); font-size: 14px; }
+@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* ── SECTION COMMONS ── */
+section { padding: 6rem 5%; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300; line-height: 1.15; letter-spacing: -.5px;
+}
+.section-title em { font-style: italic; color: var(--gold); }
+.section-sub { font-size: .95rem; color: var(--muted); line-height: 1.8; max-width: 540px; margin-top: 1rem; }
+.section-header { margin-bottom: 4rem; }
+.section-header.center { text-align: center; }
+.section-header.center .section-eyebrow { justify-content: center; }
+.section-header.center .section-eyebrow::before { display: none; }
+.section-header.center .section-sub { margin: 1rem auto 0; }
+
+/* ── HOW IT WORKS (home) ── */
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; }
+.step-card {
+  padding: 2.5rem 2rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  position: relative;
+  transition: transform .3s, box-shadow .3s;
+}
+.step-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.07); }
+.step-num {
+  font-family: var(--font-display);
+  font-size: 5rem; font-weight: 300;
+  color: var(--cream3); line-height: 1;
+  position: absolute; top: 1rem; right: 1.5rem;
+}
+.step-icon { font-size: 1.8rem; color: var(--gold); margin-bottom: 1.5rem; }
+.step-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; margin-bottom: .75rem; }
+.step-desc { font-size: .88rem; color: var(--muted); line-height: 1.7; }
+
+/* ── TESTIMONIALS ── */
+.testimonials-bg { background: var(--cream2); }
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.testimonial-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2rem;
+}
+.testimonial-stars { color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 1rem; }
+.testimonial-text { font-family: var(--font-display); font-size: 1.1rem; font-weight: 400; font-style: italic; line-height: 1.6; color: var(--charcoal2); margin-bottom: 1.5rem; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.author-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--white); flex-shrink: 0; }
+.author-name { font-size: .9rem; font-weight: 500; }
+.author-role { font-size: .78rem; color: var(--muted); }
+
+/* ── HOME CTA BANNER ── */
+.cta-banner {
+  background: var(--charcoal);
+  padding: 5rem 5%;
+  text-align: center;
+}
+.cta-banner .section-title { color: var(--cream); }
+.cta-banner .section-sub { color: rgba(255,255,255,.5); margin: 1rem auto 2.5rem; }
+.btn-gold {
+  background: var(--gold); color: var(--white);
+  padding: 16px 40px; border-radius: 2px;
+  font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  transition: background .2s, transform .2s; cursor: pointer; border: none; font-family: var(--font-body);
+}
+.btn-gold:hover { background: var(--gold2); transform: translateY(-2px); }
+
+/* ════════════════════════════
+   PAGE: FEATURES
+════════════════════════════ */
+.features-hero {
+  padding: 5rem 5% 3rem;
+  text-align: center;
+  background: linear-gradient(to bottom, var(--cream2), var(--cream));
+  border-bottom: 1px solid var(--border);
+}
+.features-hero .section-title { font-size: clamp(2.5rem, 5vw, 4rem); }
+
+.features-list { display: flex; flex-direction: column; gap: 6rem; padding: 6rem 5%; }
+.feature-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+}
+.feature-row.reverse { direction: rtl; }
+.feature-row.reverse > * { direction: ltr; }
+.feature-visual {
+  background: var(--cream2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 2.5rem;
+  min-height: 320px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.feature-visual::after {
+  content: ''; position: absolute; bottom: -30px; right: -30px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: var(--cream3);
+}
+.feature-icon-big {
+  font-size: 5rem; color: var(--gold);
+  opacity: .7;
+}
+.feature-badge {
+  position: absolute; top: 1rem; right: 1rem;
+  background: var(--charcoal); color: var(--cream);
+  font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 5px 12px; border-radius: 2px;
+}
+.feature-tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.5rem; }
+.feature-tag {
+  background: var(--cream2); border: 1px solid var(--border);
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  padding: 5px 14px; border-radius: 20px;
+}
+.feature-check-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; margin-top: 1.5rem; }
+.feature-check-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .9rem; color: var(--muted); line-height: 1.6;
+}
+.feature-check-list li i { color: var(--gold); font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
+
+@media(max-width:768px){
+  .feature-row, .feature-row.reverse { grid-template-columns: 1fr; direction: ltr; }
+}
+
+/* ════════════════════════════
+   PAGE: PRICING
+════════════════════════════ */
+/* ── SCROLL ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── COUNT BADGE ── */
+.cnt-badge { background: var(--gold); color: var(--white); font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav id="navbar">
+  <div class="nav-logo">Wardrobe<span>AI</span></div>
+  <div class="nav-links">
+    <span class="nav-link active" onclick="navigate('home')">Home</span>
+    <span class="nav-link" onclick="navigate('features')">Features</span>
+    <span class="nav-link" onclick="navigate('about')">About</span>
+    <button class="nav-cta" onclick="navigate('planner')">Style My Week — Free</button>
+  </div>
+  <span class="nav-hamburger" onclick="toggleMenu()"><i class="ti ti-menu-2"></i></span>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <span class="nav-link" onclick="navigate('home');toggleMenu()">Home</span>
+  <span class="nav-link" onclick="navigate('features');toggleMenu()">Features</span>
+  <span class="nav-link" onclick="navigate('about');toggleMenu()">About</span>
+  <button class="nav-cta" onclick="navigate('planner');toggleMenu()">Style My Week — Free</button>
+</div>
+
+<div class="content">
+
+<!-- ══════════════════════════════════
+     PAGE: HOME
+══════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">AI-Powered Fashion</div>
+      <h1 class="hero-title">Dress well,<br/><em>every single</em><br/>day.</h1>
+      <p class="hero-subtitle">Upload your wardrobe, tell us your vibe, and let our AI craft a full week of stunning outfits — completely free, forever, no sign-up needed.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="navigate('planner')">Start styling now</button>
+        <button class="btn-ghost" onclick="navigate('features')"><i class="ti ti-arrow-right"></i> See how it works</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">50k+</div><div class="stat-label">Wardrobes styled</div></div>
+        <div><div class="stat-num">7</div><div class="stat-label">Days planned at once</div></div>
+        <div><div class="stat-num">4.9★</div><div class="stat-label">User rating</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-stack">
+        <div class="hero-card side-card-1">
+          <div class="card-header">
+            <div class="card-dot" style="background:#c9a96e"></div>
+            <div style="font-size:11px;color:#aaa;font-family:var(--font-body)">Monday</div>
+          </div>
+          <div class="card-body">
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#2E2D2A"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#8A8070"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-tag" style="background:#faf3e8;color:#b8954d;font-family:var(--font-body);font-size:10px">Smart Casual</div>
+          </div>
+        </div>
+        <div class="hero-card main-card">
+          <div class="card-header">
+            <div class="card-dot" style="background:#B8924A"></div>
+            <div style="font-size:11px;color:#aaa;font-family:var(--font-body)">Wednesday — Polished</div>
+          </div>
+          <div class="card-body">
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#1C1C1C;height:52px"></div>
+              <div class="card-text-block"><div class="card-label" style="width:75%"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#EDE7DB;height:52px"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#B8924A;height:52px"></div>
+              <div class="card-text-block"><div class="card-label" style="width:50%"></div><div class="card-sub"></div></div>
+            </div>
+            <div style="margin-top:4px;font-size:11px;color:#8A8070;font-family:var(--font-body);font-style:italic;line-height:1.5">Tuck the blouse for a sleek, editorial silhouette.</div>
+          </div>
+        </div>
+        <div class="hero-card side-card-2">
+          <div class="card-header">
+            <div class="card-dot" style="background:#8A8070"></div>
+            <div style="font-size:11px;color:#aaa;font-family:var(--font-body)">Saturday</div>
+          </div>
+          <div class="card-body">
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#FAF7F2"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#2E2D2A"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Free forever badge -->
+  <div style="text-align:center;padding:1.5rem 5%;background:var(--cream2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <span style="display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.5px">
+      <i class="ti ti-lock-open" style="color:var(--gold);font-size:1.1rem"></i>
+      100% free &nbsp;·&nbsp; No sign-up required &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Unlimited outfit plans
+    </span>
+  </div>
+
+  <!-- Marquee -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-item"><i class="ti ti-sparkles"></i> AI Outfit Planning</div>
+      <div class="marquee-item"><i class="ti ti-shirt"></i> Smart Wardrobe Analysis</div>
+      <div class="marquee-item"><i class="ti ti-calendar"></i> 7-Day Style Calendar</div>
+      <div class="marquee-item"><i class="ti ti-sun"></i> Season-Aware Suggestions</div>
+      <div class="marquee-item"><i class="ti ti-heart"></i> Personalized to Your Taste</div>
+      <div class="marquee-item"><i class="ti ti-sparkles"></i> AI Outfit Planning</div>
+      <div class="marquee-item"><i class="ti ti-shirt"></i> Smart Wardrobe Analysis</div>
+      <div class="marquee-item"><i class="ti ti-calendar"></i> 7-Day Style Calendar</div>
+      <div class="marquee-item"><i class="ti ti-sun"></i> Season-Aware Suggestions</div>
+      <div class="marquee-item"><i class="ti ti-heart"></i> Personalized to Your Taste</div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section>
+    <div class="section-header center reveal">
+      <div class="section-eyebrow">Simple &amp; intuitive</div>
+      <h2 class="section-title">How <em>WardrobeAI</em> works</h2>
+      <p class="section-sub">Three effortless steps to a week of beautiful outfits, curated just for you.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal"><div class="step-num">01</div><div class="step-icon"><i class="ti ti-upload"></i></div><h3 class="step-title">Upload your clothes</h3><p class="step-desc">Snap photos of your tops, bottoms, shoes, and accessories. The more you upload, the richer the combinations.</p></div>
+      <div class="step-card reveal"><div class="step-num">02</div><div class="step-icon"><i class="ti ti-adjustments-horizontal"></i></div><h3 class="step-title">Set your style</h3><p class="step-desc">Choose your vibe — casual, business, streetwear, boho — and your current season to get context-perfect outfits.</p></div>
+      <div class="step-card reveal"><div class="step-num">03</div><div class="step-icon"><i class="ti ti-sparkles"></i></div><h3 class="step-title">Get your week planned</h3><p class="step-desc">Our AI vision model analyzes your actual items and creates 7 complete daily looks, complete with stylist tips.</p></div>
+      <div class="step-card reveal"><div class="step-num">04</div><div class="step-icon"><i class="ti ti-repeat"></i></div><h3 class="step-title">Mix &amp; remix</h3><p class="step-desc">Not feeling Monday? Regenerate with one click. Every plan is unique and always based on what you actually own.</p></div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials-bg">
+    <div class="section-header center reveal">
+      <div class="section-eyebrow">Real users</div>
+      <h2 class="section-title">Loved by <em>fashion-forward</em> people</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I never thought I'd say this about an app, but WardrobeAI genuinely changed my mornings. I save at least 20 minutes every day."</p>
+        <div class="testimonial-author"><div class="author-avatar" style="background:#B8924A">SC</div><div><div class="author-name">Sofia C.</div><div class="author-role">Marketing Director</div></div></div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"The AI actually sees my clothes and creates real outfits — not generic suggestions. It's like having a stylist in my pocket."</p>
+        <div class="testimonial-author"><div class="author-avatar" style="background:#2E2D2A">JM</div><div><div class="author-name">James M.</div><div class="author-role">Photographer</div></div></div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I discovered combinations in my own wardrobe I never would have thought of. I stopped buying clothes I don't need!"</p>
+        <div class="testimonial-author"><div class="author-avatar" style="background:#8A8070">AL</div><div><div class="author-name">Amara L.</div><div class="author-role">Interior Designer</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Home CTA -->
+  <div class="cta-banner reveal">
+    <h2 class="section-title" style="color:var(--cream)">100% free.<br/><em>Always.</em></h2>
+    <p class="section-sub" style="color:rgba(255,255,255,.45);margin:1rem auto 2.5rem">100% free — no sign-up, no limits, no credit card ever.</p>
+    <button class="btn-gold" onclick="navigate('planner')">Plan my week now <i class="ti ti-arrow-right" style="margin-left:6px"></i></button>
+  </div>
+
+</div><!-- /page-home -->
+
+<!-- ══════════════════════════════════
+     PAGE: FEATURES
+══════════════════════════════════ -->
+<div class="page" id="page-features">
+  <div class="features-hero">
+    <div class="section-eyebrow" style="justify-content:center"><i class="ti ti-sparkles"></i> What we offer</div>
+    <h1 class="section-title">Everything you need to<br/><em>dress with intention</em></h1>
+    <p class="section-sub" style="margin:1rem auto 0;text-align:center">WardrobeAI is packed with smart features built for real wardrobes and real lifestyles.</p>
+  </div>
+  <div class="features-list">
+
+    <div class="feature-row reveal">
+      <div class="feature-visual">
+        <i class="ti ti-eye feature-icon-big"></i>
+        <div class="feature-badge">Computer Vision</div>
+      </div>
+      <div>
+        <div class="section-eyebrow">AI Vision Analysis</div>
+        <h2 class="section-title" style="font-size:2rem">Sees your <em>actual</em> clothes</h2>
+        <p class="section-sub">Our AI doesn't just accept text descriptions — it visually analyses photos of your garments, understanding color, cut, texture, and style to make truly informed outfit decisions.</p>
+        <ul class="feature-check-list">
+          <li><i class="ti ti-check"></i> Identifies colors, patterns and silhouettes</li>
+          <li><i class="ti ti-check"></i> Understands formality and occasion-fit</li>
+          <li><i class="ti ti-check"></i> Works with any clothing style or aesthetic</li>
+          <li><i class="ti ti-check"></i> No manual tagging or categorisation needed</li>
+        </ul>
+        <div class="feature-tag-list">
+          <span class="feature-tag">Computer vision</span>
+          <span class="feature-tag">Claude claude-sonnet-4</span>
+          <span class="feature-tag">Multi-image</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-row reverse reveal">
+      <div class="feature-visual">
+        <i class="ti ti-calendar-week feature-icon-big"></i>
+        <div class="feature-badge">7-Day Planning</div>
+      </div>
+      <div>
+        <div class="section-eyebrow">Weekly Planning</div>
+        <h2 class="section-title" style="font-size:2rem">A full week, <em>planned instantly</em></h2>
+        <p class="section-sub">Generate seven complete daily outfits in seconds. Each day gets a distinct vibe, a carefully matched combination of pieces, and a personal stylist tip.</p>
+        <ul class="feature-check-list">
+          <li><i class="ti ti-check"></i> Monday through Sunday, fully planned</li>
+          <li><i class="ti ti-check"></i> No outfit repeated during the week</li>
+          <li><i class="ti ti-check"></i> Stylist tip with every day's look</li>
+          <li><i class="ti ti-check"></i> Regenerate any individual day or the full week</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-row reveal">
+      <div class="feature-visual">
+        <i class="ti ti-sun feature-icon-big"></i>
+        <div class="feature-badge">Context-Aware</div>
+      </div>
+      <div>
+        <div class="section-eyebrow">Style Intelligence</div>
+        <h2 class="section-title" style="font-size:2rem">Dresses you for <em>real life</em></h2>
+        <p class="section-sub">Tell WardrobeAI your season, vibe, and occasions. The AI adapts every suggestion to match your context — from beach weekends to board meetings.</p>
+        <ul class="feature-check-list">
+          <li><i class="ti ti-check"></i> Season-aware layering and fabric choices</li>
+          <li><i class="ti ti-check"></i> Vibe matching: casual, business, streetwear and more</li>
+          <li><i class="ti ti-check"></i> Occasion intelligence built in</li>
+        </ul>
+        <div class="feature-tag-list">
+          <span class="feature-tag">Casual</span>
+          <span class="feature-tag">Business casual</span>
+          <span class="feature-tag">Streetwear</span>
+          <span class="feature-tag">Boho</span>
+          <span class="feature-tag">Minimalist</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /page-features -->
+
+<!-- ══════════════════════════════════
+     PAGE: PRICING
+══════════════════════════════════ -->
+
+
+<!-- ══════════════════════════════════
+     PAGE: ABOUT
+══════════════════════════════════ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <div>
+      <div class="section-eyebrow">Our story</div>
+      <h1 class="section-title">Built by people who hate<br/><em>morning wardrobe panic</em></h1>
+      <p class="section-sub" style="margin-top:1.25rem">WardrobeAI started with a simple frustration: standing in front of a full wardrobe and feeling like you have nothing to wear. We built the AI stylist we always wished existed — and made it completely free for everyone.</p>
+      <button class="btn-primary" style="margin-top:2rem" onclick="navigate('planner')">Try it yourself</button>
+    </div>
+    <div class="about-hero-visual">
+      <div class="about-pattern"></div>
+      <i class="ti ti-hanger about-hero-icon"></i>
+    </div>
+  </div>
+
+  <div class="about-mission reveal">
+    <div class="section-eyebrow" style="justify-content:center">Our mission</div>
+    <h2 class="section-title">Fashion should be <em>joyful,</em><br/>not stressful.</h2>
+    <p>We believe that getting dressed should be one of the best parts of your day — a creative act that builds confidence and expresses who you are. The problem isn't your wardrobe; it's having a thoughtful eye to see the possibilities within it. That's exactly what WardrobeAI provides.</p>
+    <p style="margin-top:1rem">By combining the latest AI vision technology with genuine fashion intelligence, we help you rediscover and reimagine the clothes you already own — reducing waste, saving money, and making every morning a little more delightful.</p>
+  </div>
+
+  <div class="team-section">
+    <div class="section-header center">
+      <div class="section-eyebrow">The people</div>
+      <h2 class="section-title">Meet the <em>team</em></h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="team-avatar" style="background:#B8924A">EL</div><div class="team-name">Elena Lowe</div><div class="team-role">Co-founder &amp; CEO</div></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:#2E2D2A">DK</div><div class="team-name">Dev Kumar</div><div class="team-role">Co-founder &amp; CTO</div></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:#8A8070">MR</div><div class="team-name">Maya Reeves</div><div class="team-role">Head of Design</div></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:#B8924A">TN</div><div class="team-name">Tom Nash</div><div class="team-role">AI Engineer</div></div>
+    </div>
+  </div>
+
+  <div class="values-section">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">What drives us</div>
+      <h2 class="section-title">Our <em>values</em></h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-leaf"></i></div><h3 class="value-title">Sustainability</h3><p class="value-desc">We help you love what you own, reducing impulse purchases and fashion waste.</p></div>
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-user-heart"></i></div><h3 class="value-title">Inclusivity</h3><p class="value-desc">Great style belongs to everyone — every body, every budget, every aesthetic.</p></div>
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-lock"></i></div><h3 class="value-title">Privacy first</h3><p class="value-desc">Your wardrobe is personal. We treat your data with the same care you treat your clothes.</p></div>
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-rocket"></i></div><h3 class="value-title">Continuous improvement</h3><p class="value-desc">We ship updates every week, always listening to what our community needs.</p></div>
+    </div>
+  </div>
+</div><!-- /page-about -->
+
+<!-- ══════════════════════════════════
+     PAGE: PLANNER (TOOL)
+══════════════════════════════════ -->
+<div class="page" id="page-planner">
+  <div class="planner-page">
+
+    <!-- Sidebar -->
+    <aside class="planner-sidebar">
+      <div>
+        <div class="ps-title">My Wardrobe</div>
+        <div class="ps-sub">Upload clothes, get your week planned</div>
+      </div>
+
+      <div>
+        <div class="ps-section-label">Upload clothes</div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" accept="image/*" multiple id="fileInput"/>
+          <div class="upload-zone-icon"><i class="ti ti-shirt"></i></div>
+          <p><strong>Click or drag</strong> clothing photos<br/>here to upload</p>
+        </div>
+      </div>
+
+      <div id="wardrobeSection" style="display:none">
+        <div class="ps-section-label">My clothes <span class="cnt-badge" id="clothesCnt">0</span></div>
+        <div class="clothes-grid-ps" id="clothesGrid"></div>
+      </div>
+
+      <div>
+        <div class="ps-section-label">Style vibe</div>
+        <div class="chip-group" id="vibeChips">
+          <button class="chip active" data-v="Casual">Casual</button>
+          <button class="chip" data-v="Business casual">Business</button>
+          <button class="chip" data-v="Smart casual">Smart casual</button>
+          <button class="chip" data-v="Streetwear">Streetwear</button>
+          <button class="chip" data-v="Minimalist">Minimalist</button>
+          <button class="chip" data-v="Boho">Boho</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="ps-section-label">Season</div>
+        <div class="chip-group" id="seasonChips">
+          <button class="chip active" data-s="Spring">Spring</button>
+          <button class="chip" data-s="Summer">Summer</button>
+          <button class="chip" data-s="Fall">Fall</button>
+          <button class="chip" data-s="Winter">Winter</button>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="genBtn" disabled>
+        <i class="ti ti-sparkles"></i> Plan my week
+      </button>
+    </aside>
+
+    <!-- Main planner area -->
+    <div class="planner-main">
+      <div class="pm-header">
+        <h2 class="pm-title">Weekly <em>Outfits</em></h2>
+        <span id="plannerStatus" style="font-size:13px;color:var(--muted)"></span>
+      </div>
+
+      <div id="plannerEmpty" class="empty-planner">
+        <i class="ti ti-hanger"></i>
+        <h2>Your week, styled beautifully</h2>
+        <p>Upload photos of your clothing on the left, choose your style preferences, then hit "Plan my week" to get started.</p>
+      </div>
+
+      <div id="plannerLoading" style="display:none">
+        <div class="skel-grid">
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:50%"></div><div class="skel-b" style="height:10px;width:70%"></div><div class="skel-b" style="height:10px;width:60%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:50%"></div><div class="skel-b" style="height:10px;width:70%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:60%"></div><div class="skel-b" style="height:10px;width:80%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:40%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:65%"></div><div class="skel-b" style="height:10px;width:45%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:55%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:70%"></div><div class="skel-b" style="height:10px;width:50%"></div></div></div>
+        </div>
+      </div>
+
+      <div class="days-grid" id="outfitsGrid" style="display:none"></div>
+    </div>
+
+  </div>
+</div><!-- /page-planner -->
+
+</div><!-- /content -->
+
+<!-- ── FOOTER ── -->
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo">Wardrobe<span>AI</span></div>
+      <p>Your AI-powered personal stylist — completely free, forever. We help you look amazing every day using the clothes you already own.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <ul class="footer-links">
+        <li onclick="navigate('features')">Features</li>
+        <li onclick="navigate('planner')">Try the tool</li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li onclick="navigate('about')">About</li>
+        <li>Blog</li>
+        <li>Careers</li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li>Privacy Policy</li>
+        <li>Terms of Service</li>
+        <li>Cookie Policy</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 WardrobeAI Inc. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#"><i class="ti ti-brand-instagram"></i></a>
+      <a href="#"><i class="ti ti-brand-tiktok"></i></a>
+      <a href="#"><i class="ti ti-brand-twitter"></i></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── NAVIGATION ── */
+const pages = ['home','features','about','planner'];
+function navigate(id) {
+  pages.forEach(p => {
+    const pg = document.getElementById('page-'+p);
+    const lk = document.querySelector(`.nav-link[onclick*="'${p}'"]`);
+    pg.classList.remove('active');
+    if(lk) lk.classList.remove('active');
+  });
+  const target = document.getElementById('page-'+id);
+  target.style.display = 'block';
+  requestAnimationFrame(() => {
+    target.classList.add('active');
+    observeReveal();
+  });
+  const activeLink = document.querySelector(`.nav-link[onclick*="'${id}'"]`);
+  if(activeLink) activeLink.classList.add('active');
+
+  document.getElementById('site-footer').style.display = id === 'planner' ? 'none' : 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── MOBILE MENU ── */
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+/* ── SCROLL EFFECTS ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* ── REVEAL ON SCROLL ── */
+function observeReveal() {
+  const items = document.querySelectorAll('.reveal:not(.visible)');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, {threshold:0.1});
+  items.forEach(el => obs.observe(el));
+}
+document.addEventListener('DOMContentLoaded', observeReveal);
+
+/* ════════════════════════════
+   PAGE: HOME
+════════════════════════════ */
+.hero {
+  min-height: calc(100vh - 72px);
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 5%;
+  gap: 4rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; right: -10%; top: -10%; width: 60%; height: 120%;
+  background: var(--cream2);
+  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+  z-index: 0;
+}
+.hero-text { position: relative; z-index: 1; }
+.hero-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before { content: ''; width: 30px; height: 1px; background: var(--gold); }
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 5vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: var(--charcoal);
+  margin-bottom: 1.5rem;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-subtitle {
+  font-size: 1rem; font-weight: 300; line-height: 1.8;
+  color: var(--muted); max-width: 420px; margin-bottom: 2.5rem;
+}
+.hero-actions { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--charcoal); color: var(--cream);
+  padding: 14px 32px; border-radius: 2px;
+  font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  transition: background .2s, transform .2s;
+  cursor: pointer; border: none; font-family: var(--font-body);
+}
+.btn-primary:hover { background: var(--gold); transform: translateY(-2px); }
+.btn-ghost {
+  color: var(--charcoal); font-size: 13px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+  transition: color .2s; cursor: pointer; border: none; background: none;
+  font-family: var(--font-body);
+}
+.btn-ghost:hover { color: var(--gold); }
+.hero-stats {
+  display: flex; gap: 3rem; margin-top: 3rem; padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.stat-num {
+  font-family: var(--font-display); font-size: 2.2rem; font-weight: 300; color: var(--charcoal);
+}
+.stat-label { font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.hero-visual { position: relative; z-index: 1; }
+.hero-card-stack { position: relative; height: 500px; }
+.hero-card {
+  position: absolute;
+  background: var(--white);
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,.08);
+}
+.hero-card.main-card {
+  width: 280px; height: 380px;
+  top: 40px; left: 50%;
+  transform: translateX(-50%);
+  animation: float 6s ease-in-out infinite;
+}
+.hero-card.side-card-1 {
+  width: 200px; height: 260px;
+  top: 0; left: 0;
+  transform: rotate(-4deg);
+  animation: float 7s ease-in-out infinite .5s;
+}
+.hero-card.side-card-2 {
+  width: 180px; height: 230px;
+  bottom: 20px; right: 0;
+  transform: rotate(3deg);
+  animation: float 8s ease-in-out infinite 1s;
+}
+@keyframes float { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-12px)} }
+@keyframes floatL { 0%,100%{transform:rotate(-4deg) translateY(0)} 50%{transform:rotate(-4deg) translateY(-8px)} }
+@keyframes floatR { 0%,100%{transform:rotate(3deg) translateY(0)} 50%{transform:rotate(3deg) translateY(-10px)} }
+.hero-card.side-card-1 { animation: floatL 7s ease-in-out infinite .5s; }
+.hero-card.side-card-2 { animation: floatR 8s ease-in-out infinite 1s; }
+.card-header { padding: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.card-dot { width: 8px; height: 8px; border-radius: 50%; }
+.card-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card-piece { display: flex; align-items: center; gap: 10px; }
+.card-swatch { width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0; }
+.card-text-block { flex: 1; }
+.card-label { width: 60%; height: 8px; border-radius: 4px; background: var(--cream2); margin-bottom: 5px; }
+.card-sub { width: 80%; height: 6px; border-radius: 4px; background: var(--cream3); }
+.card-tag { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 500; letter-spacing: .5px; }
+
+/* ── MARQUEE ── */
+.marquee-section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  overflow: hidden;
+  background: var(--charcoal);
+}
+.marquee-track { display: flex; gap: 4rem; animation: marquee 20s linear infinite; white-space: nowrap; }
+.marquee-item { font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--cream2); display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+.marquee-item i { color: var(--gold); font-size: 14px; }
+@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* ── SECTION COMMONS ── */
+section { padding: 6rem 5%; }
+.section-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300; line-height: 1.15; letter-spacing: -.5px;
+}
+.section-title em { font-style: italic; color: var(--gold); }
+.section-sub { font-size: .95rem; color: var(--muted); line-height: 1.8; max-width: 540px; margin-top: 1rem; }
+.section-header { margin-bottom: 4rem; }
+.section-header.center { text-align: center; }
+.section-header.center .section-eyebrow { justify-content: center; }
+.section-header.center .section-eyebrow::before { display: none; }
+.section-header.center .section-sub { margin: 1rem auto 0; }
+
+/* ── HOW IT WORKS (home) ── */
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; }
+.step-card {
+  padding: 2.5rem 2rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  position: relative;
+  transition: transform .3s, box-shadow .3s;
+}
+.step-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.07); }
+.step-num {
+  font-family: var(--font-display);
+  font-size: 5rem; font-weight: 300;
+  color: var(--cream3); line-height: 1;
+  position: absolute; top: 1rem; right: 1.5rem;
+}
+.step-icon { font-size: 1.8rem; color: var(--gold); margin-bottom: 1.5rem; }
+.step-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; margin-bottom: .75rem; }
+.step-desc { font-size: .88rem; color: var(--muted); line-height: 1.7; }
+
+/* ── TESTIMONIALS ── */
+.testimonials-bg { background: var(--cream2); }
+.testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.testimonial-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 4px; padding: 2rem;
+}
+.testimonial-stars { color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 1rem; }
+.testimonial-text { font-family: var(--font-display); font-size: 1.1rem; font-weight: 400; font-style: italic; line-height: 1.6; color: var(--charcoal2); margin-bottom: 1.5rem; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.author-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--white); flex-shrink: 0; }
+.author-name { font-size: .9rem; font-weight: 500; }
+.author-role { font-size: .78rem; color: var(--muted); }
+
+/* ── HOME CTA BANNER ── */
+.cta-banner {
+  background: var(--charcoal);
+  padding: 5rem 5%;
+  text-align: center;
+}
+.cta-banner .section-title { color: var(--cream); }
+.cta-banner .section-sub { color: rgba(255,255,255,.5); margin: 1rem auto 2.5rem; }
+.btn-gold {
+  background: var(--gold); color: var(--white);
+  padding: 16px 40px; border-radius: 2px;
+  font-size: 13px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  transition: background .2s, transform .2s; cursor: pointer; border: none; font-family: var(--font-body);
+}
+.btn-gold:hover { background: var(--gold2); transform: translateY(-2px); }
+
+/* ════════════════════════════
+   PAGE: FEATURES
+════════════════════════════ */
+.features-hero {
+  padding: 5rem 5% 3rem;
+  text-align: center;
+  background: linear-gradient(to bottom, var(--cream2), var(--cream));
+  border-bottom: 1px solid var(--border);
+}
+.features-hero .section-title { font-size: clamp(2.5rem, 5vw, 4rem); }
+
+.features-list { display: flex; flex-direction: column; gap: 6rem; padding: 6rem 5%; }
+.feature-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+}
+.feature-row.reverse { direction: rtl; }
+.feature-row.reverse > * { direction: ltr; }
+.feature-visual {
+  background: var(--cream2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 2.5rem;
+  min-height: 320px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.feature-visual::after {
+  content: ''; position: absolute; bottom: -30px; right: -30px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: var(--cream3);
+}
+.feature-icon-big {
+  font-size: 5rem; color: var(--gold);
+  opacity: .7;
+}
+.feature-badge {
+  position: absolute; top: 1rem; right: 1rem;
+  background: var(--charcoal); color: var(--cream);
+  font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 5px 12px; border-radius: 2px;
+}
+.feature-tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.5rem; }
+.feature-tag {
+  background: var(--cream2); border: 1px solid var(--border);
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  padding: 5px 14px; border-radius: 20px;
+}
+.feature-check-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; margin-top: 1.5rem; }
+.feature-check-list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .9rem; color: var(--muted); line-height: 1.6;
+}
+.feature-check-list li i { color: var(--gold); font-size: 1rem; margin-top: 2px; flex-shrink: 0; }
+
+@media(max-width:768px){
+  .feature-row, .feature-row.reverse { grid-template-columns: 1fr; direction: ltr; }
+}
+
+/* ════════════════════════════
+   PAGE: PRICING
+════════════════════════════ */
+/* ── SCROLL ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── COUNT BADGE ── */
+.cnt-badge { background: var(--gold); color: var(--white); font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav id="navbar">
+  <div class="nav-logo">Wardrobe<span>AI</span></div>
+  <div class="nav-links">
+    <span class="nav-link active" onclick="navigate('home')">Home</span>
+    <span class="nav-link" onclick="navigate('features')">Features</span>
+    <span class="nav-link" onclick="navigate('about')">About</span>
+    <button class="nav-cta" onclick="navigate('planner')">Style My Week — Free</button>
+  </div>
+  <span class="nav-hamburger" onclick="toggleMenu()"><i class="ti ti-menu-2"></i></span>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <span class="nav-link" onclick="navigate('home');toggleMenu()">Home</span>
+  <span class="nav-link" onclick="navigate('features');toggleMenu()">Features</span>
+  <span class="nav-link" onclick="navigate('about');toggleMenu()">About</span>
+  <button class="nav-cta" onclick="navigate('planner');toggleMenu()">Style My Week — Free</button>
+</div>
+
+<div class="content">
+
+<!-- ══════════════════════════════════
+     PAGE: HOME
+══════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">AI-Powered Fashion</div>
+      <h1 class="hero-title">Dress well,<br/><em>every single</em><br/>day.</h1>
+      <p class="hero-subtitle">Upload your wardrobe, tell us your vibe, and let our AI craft a full week of stunning outfits — completely free, forever, no sign-up needed.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="navigate('planner')">Start styling now</button>
+        <button class="btn-ghost" onclick="navigate('features')"><i class="ti ti-arrow-right"></i> See how it works</button>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">50k+</div><div class="stat-label">Wardrobes styled</div></div>
+        <div><div class="stat-num">7</div><div class="stat-label">Days planned at once</div></div>
+        <div><div class="stat-num">4.9★</div><div class="stat-label">User rating</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-stack">
+        <div class="hero-card side-card-1">
+          <div class="card-header">
+            <div class="card-dot" style="background:#c9a96e"></div>
+            <div style="font-size:11px;color:#aaa;font-family:var(--font-body)">Monday</div>
+          </div>
+          <div class="card-body">
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#2E2D2A"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#8A8070"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-tag" style="background:#faf3e8;color:#b8954d;font-family:var(--font-body);font-size:10px">Smart Casual</div>
+          </div>
+        </div>
+        <div class="hero-card main-card">
+          <div class="card-header">
+            <div class="card-dot" style="background:#B8924A"></div>
+            <div style="font-size:11px;color:#aaa;font-family:var(--font-body)">Wednesday — Polished</div>
+          </div>
+          <div class="card-body">
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#1C1C1C;height:52px"></div>
+              <div class="card-text-block"><div class="card-label" style="width:75%"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#EDE7DB;height:52px"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#B8924A;height:52px"></div>
+              <div class="card-text-block"><div class="card-label" style="width:50%"></div><div class="card-sub"></div></div>
+            </div>
+            <div style="margin-top:4px;font-size:11px;color:#8A8070;font-family:var(--font-body);font-style:italic;line-height:1.5">Tuck the blouse for a sleek, editorial silhouette.</div>
+          </div>
+        </div>
+        <div class="hero-card side-card-2">
+          <div class="card-header">
+            <div class="card-dot" style="background:#8A8070"></div>
+            <div style="font-size:11px;color:#aaa;font-family:var(--font-body)">Saturday</div>
+          </div>
+          <div class="card-body">
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#FAF7F2"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+            <div class="card-piece">
+              <div class="card-swatch" style="background:#2E2D2A"></div>
+              <div class="card-text-block"><div class="card-label"></div><div class="card-sub"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Free forever badge -->
+  <div style="text-align:center;padding:1.5rem 5%;background:var(--cream2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <span style="display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.5px">
+      <i class="ti ti-lock-open" style="color:var(--gold);font-size:1.1rem"></i>
+      100% free &nbsp;·&nbsp; No sign-up required &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Unlimited outfit plans
+    </span>
+  </div>
+
+  <!-- Marquee -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-item"><i class="ti ti-sparkles"></i> AI Outfit Planning</div>
+      <div class="marquee-item"><i class="ti ti-shirt"></i> Smart Wardrobe Analysis</div>
+      <div class="marquee-item"><i class="ti ti-calendar"></i> 7-Day Style Calendar</div>
+      <div class="marquee-item"><i class="ti ti-sun"></i> Season-Aware Suggestions</div>
+      <div class="marquee-item"><i class="ti ti-heart"></i> Personalized to Your Taste</div>
+      <div class="marquee-item"><i class="ti ti-sparkles"></i> AI Outfit Planning</div>
+      <div class="marquee-item"><i class="ti ti-shirt"></i> Smart Wardrobe Analysis</div>
+      <div class="marquee-item"><i class="ti ti-calendar"></i> 7-Day Style Calendar</div>
+      <div class="marquee-item"><i class="ti ti-sun"></i> Season-Aware Suggestions</div>
+      <div class="marquee-item"><i class="ti ti-heart"></i> Personalized to Your Taste</div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section>
+    <div class="section-header center reveal">
+      <div class="section-eyebrow">Simple &amp; intuitive</div>
+      <h2 class="section-title">How <em>WardrobeAI</em> works</h2>
+      <p class="section-sub">Three effortless steps to a week of beautiful outfits, curated just for you.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal"><div class="step-num">01</div><div class="step-icon"><i class="ti ti-upload"></i></div><h3 class="step-title">Upload your clothes</h3><p class="step-desc">Snap photos of your tops, bottoms, shoes, and accessories. The more you upload, the richer the combinations.</p></div>
+      <div class="step-card reveal"><div class="step-num">02</div><div class="step-icon"><i class="ti ti-adjustments-horizontal"></i></div><h3 class="step-title">Set your style</h3><p class="step-desc">Choose your vibe — casual, business, streetwear, boho — and your current season to get context-perfect outfits.</p></div>
+      <div class="step-card reveal"><div class="step-num">03</div><div class="step-icon"><i class="ti ti-sparkles"></i></div><h3 class="step-title">Get your week planned</h3><p class="step-desc">Our AI vision model analyzes your actual items and creates 7 complete daily looks, complete with stylist tips.</p></div>
+      <div class="step-card reveal"><div class="step-num">04</div><div class="step-icon"><i class="ti ti-repeat"></i></div><h3 class="step-title">Mix &amp; remix</h3><p class="step-desc">Not feeling Monday? Regenerate with one click. Every plan is unique and always based on what you actually own.</p></div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials-bg">
+    <div class="section-header center reveal">
+      <div class="section-eyebrow">Real users</div>
+      <h2 class="section-title">Loved by <em>fashion-forward</em> people</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I never thought I'd say this about an app, but WardrobeAI genuinely changed my mornings. I save at least 20 minutes every day."</p>
+        <div class="testimonial-author"><div class="author-avatar" style="background:#B8924A">SC</div><div><div class="author-name">Sofia C.</div><div class="author-role">Marketing Director</div></div></div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"The AI actually sees my clothes and creates real outfits — not generic suggestions. It's like having a stylist in my pocket."</p>
+        <div class="testimonial-author"><div class="author-avatar" style="background:#2E2D2A">JM</div><div><div class="author-name">James M.</div><div class="author-role">Photographer</div></div></div>
+      </div>
+      <div class="testimonial-card reveal">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I discovered combinations in my own wardrobe I never would have thought of. I stopped buying clothes I don't need!"</p>
+        <div class="testimonial-author"><div class="author-avatar" style="background:#8A8070">AL</div><div><div class="author-name">Amara L.</div><div class="author-role">Interior Designer</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Home CTA -->
+  <div class="cta-banner reveal">
+    <h2 class="section-title" style="color:var(--cream)">100% free.<br/><em>Always.</em></h2>
+    <p class="section-sub" style="color:rgba(255,255,255,.45);margin:1rem auto 2.5rem">100% free — no sign-up, no limits, no credit card ever.</p>
+    <button class="btn-gold" onclick="navigate('planner')">Plan my week now <i class="ti ti-arrow-right" style="margin-left:6px"></i></button>
+  </div>
+
+</div><!-- /page-home -->
+
+<!-- ══════════════════════════════════
+     PAGE: FEATURES
+══════════════════════════════════ -->
+<div class="page" id="page-features">
+  <div class="features-hero">
+    <div class="section-eyebrow" style="justify-content:center"><i class="ti ti-sparkles"></i> What we offer</div>
+    <h1 class="section-title">Everything you need to<br/><em>dress with intention</em></h1>
+    <p class="section-sub" style="margin:1rem auto 0;text-align:center">WardrobeAI is packed with smart features built for real wardrobes and real lifestyles.</p>
+  </div>
+  <div class="features-list">
+
+    <div class="feature-row reveal">
+      <div class="feature-visual">
+        <i class="ti ti-eye feature-icon-big"></i>
+        <div class="feature-badge">Computer Vision</div>
+      </div>
+      <div>
+        <div class="section-eyebrow">AI Vision Analysis</div>
+        <h2 class="section-title" style="font-size:2rem">Sees your <em>actual</em> clothes</h2>
+        <p class="section-sub">Our AI doesn't just accept text descriptions — it visually analyses photos of your garments, understanding color, cut, texture, and style to make truly informed outfit decisions.</p>
+        <ul class="feature-check-list">
+          <li><i class="ti ti-check"></i> Identifies colors, patterns and silhouettes</li>
+          <li><i class="ti ti-check"></i> Understands formality and occasion-fit</li>
+          <li><i class="ti ti-check"></i> Works with any clothing style or aesthetic</li>
+          <li><i class="ti ti-check"></i> No manual tagging or categorisation needed</li>
+        </ul>
+        <div class="feature-tag-list">
+          <span class="feature-tag">Computer vision</span>
+          <span class="feature-tag">Claude claude-sonnet-4</span>
+          <span class="feature-tag">Multi-image</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-row reverse reveal">
+      <div class="feature-visual">
+        <i class="ti ti-calendar-week feature-icon-big"></i>
+        <div class="feature-badge">7-Day Planning</div>
+      </div>
+      <div>
+        <div class="section-eyebrow">Weekly Planning</div>
+        <h2 class="section-title" style="font-size:2rem">A full week, <em>planned instantly</em></h2>
+        <p class="section-sub">Generate seven complete daily outfits in seconds. Each day gets a distinct vibe, a carefully matched combination of pieces, and a personal stylist tip.</p>
+        <ul class="feature-check-list">
+          <li><i class="ti ti-check"></i> Monday through Sunday, fully planned</li>
+          <li><i class="ti ti-check"></i> No outfit repeated during the week</li>
+          <li><i class="ti ti-check"></i> Stylist tip with every day's look</li>
+          <li><i class="ti ti-check"></i> Regenerate any individual day or the full week</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-row reveal">
+      <div class="feature-visual">
+        <i class="ti ti-sun feature-icon-big"></i>
+        <div class="feature-badge">Context-Aware</div>
+      </div>
+      <div>
+        <div class="section-eyebrow">Style Intelligence</div>
+        <h2 class="section-title" style="font-size:2rem">Dresses you for <em>real life</em></h2>
+        <p class="section-sub">Tell WardrobeAI your season, vibe, and occasions. The AI adapts every suggestion to match your context — from beach weekends to board meetings.</p>
+        <ul class="feature-check-list">
+          <li><i class="ti ti-check"></i> Season-aware layering and fabric choices</li>
+          <li><i class="ti ti-check"></i> Vibe matching: casual, business, streetwear and more</li>
+          <li><i class="ti ti-check"></i> Occasion intelligence built in</li>
+        </ul>
+        <div class="feature-tag-list">
+          <span class="feature-tag">Casual</span>
+          <span class="feature-tag">Business casual</span>
+          <span class="feature-tag">Streetwear</span>
+          <span class="feature-tag">Boho</span>
+          <span class="feature-tag">Minimalist</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /page-features -->
+
+<!-- ══════════════════════════════════
+     PAGE: PRICING
+══════════════════════════════════ -->
+
+
+<!-- ══════════════════════════════════
+     PAGE: ABOUT
+══════════════════════════════════ -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <div>
+      <div class="section-eyebrow">Our story</div>
+      <h1 class="section-title">Built by people who hate<br/><em>morning wardrobe panic</em></h1>
+      <p class="section-sub" style="margin-top:1.25rem">WardrobeAI started with a simple frustration: standing in front of a full wardrobe and feeling like you have nothing to wear. We built the AI stylist we always wished existed — and made it completely free for everyone.</p>
+      <button class="btn-primary" style="margin-top:2rem" onclick="navigate('planner')">Try it yourself</button>
+    </div>
+    <div class="about-hero-visual">
+      <div class="about-pattern"></div>
+      <i class="ti ti-hanger about-hero-icon"></i>
+    </div>
+  </div>
+
+  <div class="about-mission reveal">
+    <div class="section-eyebrow" style="justify-content:center">Our mission</div>
+    <h2 class="section-title">Fashion should be <em>joyful,</em><br/>not stressful.</h2>
+    <p>We believe that getting dressed should be one of the best parts of your day — a creative act that builds confidence and expresses who you are. The problem isn't your wardrobe; it's having a thoughtful eye to see the possibilities within it. That's exactly what WardrobeAI provides.</p>
+    <p style="margin-top:1rem">By combining the latest AI vision technology with genuine fashion intelligence, we help you rediscover and reimagine the clothes you already own — reducing waste, saving money, and making every morning a little more delightful.</p>
+  </div>
+
+  <div class="team-section">
+    <div class="section-header center">
+      <div class="section-eyebrow">The people</div>
+      <h2 class="section-title">Meet the <em>team</em></h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal"><div class="team-avatar" style="background:#B8924A">EL</div><div class="team-name">Elena Lowe</div><div class="team-role">Co-founder &amp; CEO</div></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:#2E2D2A">DK</div><div class="team-name">Dev Kumar</div><div class="team-role">Co-founder &amp; CTO</div></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:#8A8070">MR</div><div class="team-name">Maya Reeves</div><div class="team-role">Head of Design</div></div>
+      <div class="team-card reveal"><div class="team-avatar" style="background:#B8924A">TN</div><div class="team-name">Tom Nash</div><div class="team-role">AI Engineer</div></div>
+    </div>
+  </div>
+
+  <div class="values-section">
+    <div class="section-header reveal">
+      <div class="section-eyebrow">What drives us</div>
+      <h2 class="section-title">Our <em>values</em></h2>
+    </div>
+    <div class="values-grid">
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-leaf"></i></div><h3 class="value-title">Sustainability</h3><p class="value-desc">We help you love what you own, reducing impulse purchases and fashion waste.</p></div>
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-user-heart"></i></div><h3 class="value-title">Inclusivity</h3><p class="value-desc">Great style belongs to everyone — every body, every budget, every aesthetic.</p></div>
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-lock"></i></div><h3 class="value-title">Privacy first</h3><p class="value-desc">Your wardrobe is personal. We treat your data with the same care you treat your clothes.</p></div>
+      <div class="value-card reveal"><div class="value-icon"><i class="ti ti-rocket"></i></div><h3 class="value-title">Continuous improvement</h3><p class="value-desc">We ship updates every week, always listening to what our community needs.</p></div>
+    </div>
+  </div>
+</div><!-- /page-about -->
+
+<!-- ══════════════════════════════════
+     PAGE: PLANNER (TOOL)
+══════════════════════════════════ -->
+<div class="page" id="page-planner">
+  <div class="planner-page">
+
+    <!-- Sidebar -->
+    <aside class="planner-sidebar">
+      <div>
+        <div class="ps-title">My Wardrobe</div>
+        <div class="ps-sub">Upload clothes, get your week planned</div>
+      </div>
+
+      <div>
+        <div class="ps-section-label">Upload clothes</div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" accept="image/*" multiple id="fileInput"/>
+          <div class="upload-zone-icon"><i class="ti ti-shirt"></i></div>
+          <p><strong>Click or drag</strong> clothing photos<br/>here to upload</p>
+        </div>
+      </div>
+
+      <div id="wardrobeSection" style="display:none">
+        <div class="ps-section-label">My clothes <span class="cnt-badge" id="clothesCnt">0</span></div>
+        <div class="clothes-grid-ps" id="clothesGrid"></div>
+      </div>
+
+      <div>
+        <div class="ps-section-label">Style vibe</div>
+        <div class="chip-group" id="vibeChips">
+          <button class="chip active" data-v="Casual">Casual</button>
+          <button class="chip" data-v="Business casual">Business</button>
+          <button class="chip" data-v="Smart casual">Smart casual</button>
+          <button class="chip" data-v="Streetwear">Streetwear</button>
+          <button class="chip" data-v="Minimalist">Minimalist</button>
+          <button class="chip" data-v="Boho">Boho</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="ps-section-label">Season</div>
+        <div class="chip-group" id="seasonChips">
+          <button class="chip active" data-s="Spring">Spring</button>
+          <button class="chip" data-s="Summer">Summer</button>
+          <button class="chip" data-s="Fall">Fall</button>
+          <button class="chip" data-s="Winter">Winter</button>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="genBtn" disabled>
+        <i class="ti ti-sparkles"></i> Plan my week
+      </button>
+    </aside>
+
+    <!-- Main planner area -->
+    <div class="planner-main">
+      <div class="pm-header">
+        <h2 class="pm-title">Weekly <em>Outfits</em></h2>
+        <span id="plannerStatus" style="font-size:13px;color:var(--muted)"></span>
+      </div>
+
+      <div id="plannerEmpty" class="empty-planner">
+        <i class="ti ti-hanger"></i>
+        <h2>Your week, styled beautifully</h2>
+        <p>Upload photos of your clothing on the left, choose your style preferences, then hit "Plan my week" to get started.</p>
+      </div>
+
+      <div id="plannerLoading" style="display:none">
+        <div class="skel-grid">
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:50%"></div><div class="skel-b" style="height:10px;width:70%"></div><div class="skel-b" style="height:10px;width:60%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:50%"></div><div class="skel-b" style="height:10px;width:70%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:60%"></div><div class="skel-b" style="height:10px;width:80%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:40%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:65%"></div><div class="skel-b" style="height:10px;width:45%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:55%"></div></div></div>
+          <div class="skel-card"><div class="skel-inner"><div class="skel-b" style="height:90px"></div><div class="skel-b" style="height:10px;width:70%"></div><div class="skel-b" style="height:10px;width:50%"></div></div></div>
+        </div>
+      </div>
+
+      <div class="days-grid" id="outfitsGrid" style="display:none"></div>
+    </div>
+
+  </div>
+</div><!-- /page-planner -->
+
+</div><!-- /content -->
+
+<!-- ── FOOTER ── -->
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-logo">Wardrobe<span>AI</span></div>
+      <p>Your AI-powered personal stylist — completely free, forever. We help you look amazing every day using the clothes you already own.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <ul class="footer-links">
+        <li onclick="navigate('features')">Features</li>
+        <li onclick="navigate('planner')">Try the tool</li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li onclick="navigate('about')">About</li>
+        <li>Blog</li>
+        <li>Careers</li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <ul class="footer-links">
+        <li>Privacy Policy</li>
+        <li>Terms of Service</li>
+        <li>Cookie Policy</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 WardrobeAI Inc. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#"><i class="ti ti-brand-instagram"></i></a>
+      <a href="#"><i class="ti ti-brand-tiktok"></i></a>
+      <a href="#"><i class="ti ti-brand-twitter"></i></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── NAVIGATION ── */
+const pages = ['home','features','about','planner'];
+function navigate(id) {
+  pages.forEach(p => {
+    const pg = document.getElementById('page-'+p);
+    const lk = document.querySelector(`.nav-link[onclick*="'${p}'"]`);
+    pg.classList.remove('active');
+    if(lk) lk.classList.remove('active');
+  });
+  const target = document.getElementById('page-'+id);
+  target.style.display = 'block';
+  requestAnimationFrame(() => {
+    target.classList.add('active');
+    observeReveal();
+  });
+  const activeLink = document.querySelector(`.nav-link[onclick*="'${id}'"]`);
+  if(activeLink) activeLink.classList.add('active');
+
+  document.getElementById('site-footer').style.display = id === 'planner' ? 'none' : 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── MOBILE MENU ── */
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+/* ── SCROLL EFFECTS ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* ── REVEAL ON SCROLL ── */
+function observeReveal() {
+  const items = document.querySelectorAll('.reveal:not(.visible)');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, {threshold:0.1});
+  items.forEach(el => obs.observe(el));
+}
+document.addEventListener('DOMContentLoaded', observeReveal);
+
+/* ── FAQ ── */
+function toggleFaq(btn) {
+  btn.classList.toggle('open');
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('open');
+}
+
+/* ═══════════════════════════════════
+   PLANNER TOOL LOGIC
+═══════════════════════════════════ */
+const ps = { clothes: [], vibe: 'Casual', season: 'Spring' };
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  Array.from(e.target.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => { ps.clothes.push({id:Date.now()+Math.random(), src:ev.target.result}); renderWardrobe(); };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+});
+
+function renderWardrobe() {
+  const sec = document.getElementById('wardrobeSection');
+  const grid = document.getElementById('clothesGrid');
+  const cnt = document.getElementById('clothesCnt');
+  const btn = document.getElementById('genBtn');
+  sec.style.display = ps.clothes.length ? 'block' : 'none';
+  cnt.textContent = ps.clothes.length;
+  btn.disabled = ps.clothes.length === 0;
+  grid.innerHTML = '';
+  ps.clothes.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'ci';
+    d.innerHTML = `<img src="${item.src}" alt="clothing"/><button class="ci-rm" onclick="removeItem(${i})"><i class="ti ti-x" style="font-size:9px"></i></button>`;
+    grid.appendChild(d);
+  });
+}
+
+function removeItem(i) { ps.clothes.splice(i,1); renderWardrobe(); }
+
+document.getElementById('vibeChips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  document.querySelectorAll('#vibeChips .chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); ps.vibe = c.dataset.v;
+});
+document.getElementById('seasonChips').addEventListener('click', e => {
+  const c = e.target.closest('.chip'); if(!c) return;
+  document.querySelectorAll('#seasonChips .chip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active'); ps.season = c.dataset.s;
+});
+
+document.getElementById('genBtn').addEventListener('click', generateOutfits);
+
+const ICONS = {Top:'ti-shirt',Bottom:'ti-layout-bottombar',Shoes:'ti-shoe',Accessory:'ti-crown',Outerwear:'ti-hanger',Dress:'ti-shirt',Bag:'ti-briefcase'};
+
+async function generateOutfits() {
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> Styling…';
+  document.getElementById('plannerEmpty').style.display = 'none';
+  document.getElementById('outfitsGrid').style.display = 'none';
+  document.getElementById('plannerLoading').style.display = 'block';
+  document.getElementById('plannerStatus').textContent = 'Our AI is studying your wardrobe…';
+
+  const imgContents = ps.clothes.map(item => ({
+    type:'image', source:{type:'base64', media_type:'image/jpeg', data:item.src.split(',')[1]}
+  }));
+
+  const prompt = `You are a professional fashion stylist. I am showing you ${ps.clothes.length} photos of clothing items from my wardrobe.\n\nStyle vibe: ${ps.vibe}\nSeason: ${ps.season}\n\nCreate 7 outfit suggestions, one for each day (Monday–Sunday). For each day select pieces visible in the photos.\n\nRespond ONLY with a JSON array (no markdown fences, no preamble):\n[\n  {\n    "day": "Monday",\n    "vibe": "2-3 word vibe",\n    "pieces": [\n      {"type": "Top", "description": "describe specific visible item"},\n      {"type": "Bottom", "description": "describe specific visible item"},\n      {"type": "Shoes", "description": "suggestion"},\n      {"type": "Accessory", "description": "suggestion"}\n    ],\n    "stylistTip": "One practical styling tip."\n  }\n]\n\nBe specific about what you see. If a category item isn't in the photos, suggest what would complement the look.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1500,
+        messages:[{role:'user', content:[...imgContents, {type:'text', text:prompt}]}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content.map(b=>b.text||'').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const outfits = JSON.parse(clean);
+    renderOutfits(outfits);
+    document.getElementById('plannerStatus').textContent = `✓ ${outfits.length} outfits ready`;
+  } catch(err) {
+    console.error(err);
+    document.getElementById('plannerLoading').style.display = 'none';
+    document.getElementById('plannerEmpty').style.display = 'flex';
+    document.getElementById('plannerEmpty').querySelector('h2').textContent = 'Something went wrong';
+    document.getElementById('plannerEmpty').querySelector('p').textContent = 'Could not generate outfits. Please try again.';
+    document.getElementById('plannerStatus').textContent = '';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-sparkles"></i> Re-style my week';
+}
+
+function renderOutfits(outfits) {
+  document.getElementById('plannerLoading').style.display = 'none';
+  const grid = document.getElementById('outfitsGrid');
+  grid.innerHTML = ''; grid.style.display = 'grid';
+  outfits.forEach((day, di) => {
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    const piecesHTML = (day.pieces||[]).map((piece, pi) => {
+      const imgIdx = (di*2+pi) % ps.clothes.length;
+      const showImg = ps.clothes.length > 0 && pi < 2;
+      const thumb = showImg
+        ? `<img src="${ps.clothes[imgIdx].src}" alt="${piece.type}"/>`
+        : `<i class="ti ${ICONS[piece.type]||'ti-shirt'}"></i>`;
+      return `<div class="piece-row"><div class="piece-thumb">${thumb}</div><div class="piece-meta"><div class="piece-type">${piece.type}</div><div class="piece-desc" title="${piece.description}">${piece.description}</div></div></div>`;
+    }).join('');
+    card.innerHTML = `<div class="dc-header"><div class="dc-day">${day.day}</div><div class="dc-vibe">${day.vibe||ps.vibe}</div></div><div class="dc-pieces">${piecesHTML}</div>${day.stylistTip?`<div class="dc-tip"><i class="ti ti-sparkles"></i>${day.stylistTip}</div>`:''}`;
+    grid.appendChild(card);
+  });
+}
+
+/* Init */
+navigate('home');
+</script>
+</body>
+</html>
